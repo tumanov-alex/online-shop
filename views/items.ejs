@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+    <title>Node Authentication</title>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="extra-style.css">
+    <script src="extra-script.js"></script>
+    <script src="jquery.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="page-header text-center">
+        <h1><span class="fa fa-shopping-basket"></span> Items Page</h1>
+        <a href="/logout" class="btn btn-default btn-sm">Logout</a>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <div class="well">
+
+                <div class="item-container">
+                    <h2 class="item-header"><%= item.title %></h2>
+                    <div class="ava-container">
+                        <% if (item.image) { %>
+                        <img class="product-img img-responsive img-rounded" src="./uploads/<%=item.image%>">
+                        <a href="/delete-photo">Delete Photo</a>
+                        <% } %>
+                    </div>
+                    <strong>Price: </strong>
+                    <p><%= item.price %> USD</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

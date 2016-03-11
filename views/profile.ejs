@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+<head>
+	<title>Node Authentication</title>
+	<link rel="stylesheet" href="bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="extra-style.css">
+	<script src="extra-script.js"></script>
+	<script src="jquery.js"></script>
+	<script>
+		$(document).on('change', '.btn-file :file', function() {
+			var input = $(this),
+					numFiles = input.get(0).files ? input.get(0).files.length : 1,
+					label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+			input.trigger('fileselect', [numFiles, label]);
+		});
+
+		$(document).ready( function() {
+			$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
+
+				var input = $(this).parents('.input-group').find(':text'),
+						log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+				if( input.length ) {
+					input.val(log);
+				}
+
+			});
+		});
+	</script>
+</head>
+<body>
+<div class="container">
+	<div class="page-header text-center">
+		<h1><span class="fa fa-anchor"></span> Profile Page</h1>
+		<a href="/logout" class="btn btn-default btn-sm">Logout</a>
+	</div>
+
+	<div class="row">
+		<div class="col-sm-3"></div>
+		<div class="col-sm-6">
+			<div class="ava-container">
+				<% if (user.user.image) { %>
+				<img class="product-img img-rounded" src="./uploads/<%=user.user.image%>" alt="">
+				<a href="/delete-photo">Delete Photo</a>
+				<% } %>
+			</div>
+			<div class="well">
+				<% if (messageSuccess.length > 0) { %>
+				<div class="alert alert-info"><%= messageSuccess %></div>
+				<% } %>
+				<% if (messageFailure.length > 0) { %>
+				<div class="alert alert-danger"><%= messageFailure %></div>
+				<% } %>
+
+				<h3><span class="fa fa-user"></span> Hi, <%= user.user
+							.name %>!
+				</h3>
+
+				<strong>email</strong>: <%= user.user.email %><br>
+				<form class="emailChange">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="input-group">
+								<input type="text" placeholder="change email"
+									   class="form-control input-email-change">
+								<span class="input-group-btn">
+									<input onclick="changeEmail()" type="submit"
+										   value="change"
+										   class="btn
+					btn-default">
+								</span>
+							</div>
+						</div>
+					</div>
+				</form>
+				<br>
+				<strong>phone</strong>: <%= user.user.phone %><br>
+				<form class="phoneChange">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="input-group">
+								<input type="text" placeholder="change phone"
+									   class="form-control
+									   input-phone-change">
+								<span class="input-group-btn">
+									<input onclick="changePhone()"
+										   type="submit"
+										   value="change"
+										   class="btn
+					btn-default">
+								</span>
+							</div>
+						</div>
+					</div>
+				</form>
+
+				<br>
+				<form class="changePassword">
+					<strong>Change password: </strong>
+					<div class="row">
+						<div class="col-lg-12">
+							<input class="old-pass form-control mar-bot"
+								   placeholder="Current password " type="text"
+								   name="old-pass">
+							<input placeholder="New password "
+								   class="new-pass form-control mar-bot" type="text"
+								   name="new-pass">
+							<input class="btn btn-default" type="submit"
+								   value="submit"
+								   onClick="changePassword()"
+								   style="float: right">
+						</div>
+					</div>
+				</form>
+
+				<br>
+				<form class="findUser">
+					<strong>Find a user:</strong>
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="input-group">
+								<input type="text" class="form-control find-user-input"
+									   placeholder="User's email">
+								<span class="input-group-btn">
+								<input class="btn btn-default" type="submit" value="Find" onclick="findUser()">
+								</span>
+							</div>
+						</div>
+					</div>
+				</form>
+				<br>
+
+				<form action="/file_upload" method="POST"
+					  enctype="multipart/form-data">
+					<strong>Change profile picture:</strong>
+					<br>
+					<div class="btn-group" role="group" style="float:
+					right">
+						<span class="btn btn-default btn-file">
+							Browse <input type="file" name="photo" />
+						</span>
+						<button type="submit" class="btn btn-default">Upload</button>
+					</div>
+					<br><br>
+				</form>
+
+				<form action="/create-item" method="post" enctype="multipart/form-data">
+					<strong>Create an item: </strong>
+					<br>
+					<input class="form-control mar-bot" type="text" name="title" placeholder="title">
+					<div class="input-group mar-bot">
+						<span class="input-group-addon">$</span>
+						<input type="text" placeholder="price" name="price" class="form-control" aria-label="Amount (to the nearest dollar)">
+						<span class="input-group-addon">.00</span>
+					</div>
+
+					<div class="input-group">
+						<span class="input-group-btn">
+							<span class="btn btn-default btn-file mar-bot">
+								Browse <input name="photo" type="file"
+											  multiple>
+							</span>
+						</span>
+						<input type="text" class="form-control" readonly>
+					</div>
+					<input class="hidden" type="text" name="user_id"
+						   value="<%= user.user.id %>">
+					<input class="btn btn-default right" type="submit" value="Submit">
+					<br><br>
+				</form>
+				<a href="/get-all">GET ALL</a>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

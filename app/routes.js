@@ -148,8 +148,7 @@ module.exports = function (app, passport) {
 	});
 
 	app.get('/items', function (req, res) {
-		console.log(req);
-
+		console.log(req.user.items);
 		res.render('items.ejs', {
 			item: req.user.item,
 			message: req.flash('messageSuccess')
@@ -157,6 +156,19 @@ module.exports = function (app, passport) {
 	});
 
 	app.post('/create-item', function(req, res) {
+		upload.single('photo');
+
+		var dirname = __dirname;
+		var path = dirname.substring(0, dirname.length - 3);
+		path += "/views/uploads/" + req.files.photo.originalFilename;
+		fs.readFile(req.files.photo.path, function (err, data) {
+			fs.writeFile(path, data, function (err) {
+				if (err) {
+					console.log(err);
+				}
+			});
+		});
+
 		var items = [];
 		var reqUserId = req.user.id;
 		User.find({}, function (err, users) {
@@ -167,21 +179,7 @@ module.exports = function (app, passport) {
 					items.push(users[i].item);
 				}
 			}
-			req.dataProcessed = items;
-			console.log(req.dataProcessed);
-		});
-
-		upload.single('photo');
-		var dirname = __dirname;
-		var path = dirname.substring(0, dirname.length - 3);
-		path += "/views/uploads/" + req.files.photo.originalFilename;
-
-		fs.readFile(req.files.photo.path, function (err, data) {
-			fs.writeFile(path, data, function (err) {
-				if (err) {
-					console.log(err);
-				}
-			});
+			req.user.items = items;
 		});
 
 		passport.authenticate('item-create', {

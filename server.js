@@ -13,7 +13,7 @@ var multer  = require('multer');
 var configDB = require('./config/database.js');
 
 // configuration ===============================================================
-mongoose.connect(configDB.url); // connect to our database
+mongoose.connect(configDB.url);
 
 require('./config/passport')(passport); // pass passport for configuration
 
@@ -32,9 +32,7 @@ app.configure(function() {
 
 	// required for passport
 	app.use(express.session({
-			secret: 'yohooo',
-			resave : true,
-			saveUninitialized : true
+			secret: 'yohooo'
 	})); // session secret
 	app.use(passport.initialize());
 	app.use(passport.session()); // persistent login sessions

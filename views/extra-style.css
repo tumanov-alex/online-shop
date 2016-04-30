@@ -30,7 +30,10 @@ input[readonly] {
 body { word-wrap:break-word; }
 
 .product-img {
-    max-width: 300px;
+    width: 100%;
+    max-width: 400px;
+    display: block;
+    margin: 0 auto;
 }
 
 .right{
@@ -55,8 +58,32 @@ body { word-wrap:break-word; }
     padding: 19px;
     margin-bottom: 20px;
     border-radius: 4px;
+    position: relative;
 }
 
 .item-header{
-    text-align: center;
+    margin: 0 0 20px 30px;
+}
+
+.price{
+    float: right;
+    padding: 5px;
+    border: 1px solid red;
+    border-radius: 5px;
+    background: #ffcccc;
+    font-weight: bold;
+}
+
+.date{
+    padding-top: 10px;
+}
+
+.delete-item{
+    position: absolute;
+    right: 0;
+    font-size: 20px;
+}
+
+.delete-item > .fa{
+
 }

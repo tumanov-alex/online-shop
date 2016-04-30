@@ -77,9 +77,7 @@ module.exports = function(passport) {
                     return done(null, newUser);
                 });
             }
-
         });
-
     }));
 
     // =========================================================================
@@ -99,8 +97,8 @@ module.exports = function(passport) {
         },
         function(req, email, password, done) {
             var newItem            = new User();
-            var miliseconds = new Date();
-            var date = miliseconds.getFullYear() + ' ' + miliseconds.getMonth() + ' ' + miliseconds.getDate();
+            var milliseconds = new Date();
+            var date = milliseconds.getFullYear() + '/' + milliseconds.getMonth() + '/' + milliseconds.getDate();
 
             // set the user's local credentials
             newItem.item.title      = req.body.title;

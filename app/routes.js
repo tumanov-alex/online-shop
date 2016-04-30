@@ -5,46 +5,122 @@ var multer  = require('multer');
 var upload = multer();
 
 module.exports = function (app, passport) {
+	app.locals.answerObj = {
+		messageSuccess: null,
+		messageFailure: null,
+		shown: false
+	};
+
+	function Answer(failureOrSuccessFlag, str) {
+		if(failureOrSuccessFlag) {
+			app.locals.answerObj.messageSuccess = str;
+			app.locals.answerObj.messageFailure = null;
+		} else {
+			app.locals.answerObj.messageFailure = str;
+			app.locals.answerObj.messageSuccess = null;
+		}
+		app.locals.answerObj.shown = false;
+	}
 
 	app.post('/file_upload', function (req, res) {
-		upload.single('photo');
-		var dirname = __dirname;
-		var path = dirname.substring(0, dirname.length - 3);
-		path += "/views/uploads/" + req.files.photo.originalFilename;
+		var uploadingFileType = req.files.photo.type;
+		uploadingFileType = uploadingFileType.split('/');
 
-		fs.readFile(req.files.photo.path, function (err, data) {
-			fs.writeFile(path, data, function (err) {
-				if (err) {
-					console.log(err);
-				} else {
-					req.flash('messageSuccess', 'Uploaded');
-				}
+		if(uploadingFileType[0] != 'image'){
+			Answer(false, 'Only images can be uploaded');
+		}
+		else{
+			upload.single('photo');
+			var path = __dirname.split('\\');
+			path.splice(path.length-1, 1);
+			path = path.join('\\');
+			path += "views\\uploads\\" + req.files.photo.originalFilename;
 
-				User.findOneAndUpdate({'user.email': req.user.user.email}, {'user.image': req.files.photo.originalFilename}, function (err) {
-					if (err) throw err;
+			fs.readFile(req.files.photo.path, function (err, data) {
+				fs.writeFile(path, data, function () {
+					Answer(true, "Uploaded");
+
+					User.findOneAndUpdate({'user.email': req.user.user.email}, {'user.image': req.files.photo.originalFilename}, function (err) {
+						if (err) throw err;
+					});
 				});
+			});
+		}
 
-				req.session.save( function(err){
-					if(err) throw err;
+		res.redirect('/profile');
+	});
 
-					res.redirect('/profile');
-				});
+	app.post('/my-items', function (req, res) {
+		passport.authenticate('my-items', {
+			successRedirect: '/items',
+			failureRedirect: '/profile',
+			failureFlash : true
+		})(req, res);
+	});
+
+	app.get('/items', isLoggedIn, function (req, res) {
+		User.find({'item.user_id': req.user.item.user_id}, function(err, items) {
+			if(err) throw err;
+
+			res.render('items.ejs', {
+				message: req.flash('messageSuccess'),
+				items: JSON.stringify(items)
 			});
 		});
 	});
 
+	app.post('/create-item', function(req, res) {
+		upload.single('photo');
+
+		var dirname = __dirname;
+		var path = dirname.substring(0, dirname.length - 3);
+		path += "views\\uploads\\" + req.files.photo.originalFilename;
+		fs.readFile(req.files.photo.path, function (err, data) {
+			fs.writeFile(path, data, function (err) {
+				if (err) {
+					console.log(err);
+				}
+			});
+		});
+
+		passport.authenticate('item-create', {
+			successRedirect: '/items',
+			failureRedirect: '/profile',
+			failureFlash : true
+		})(req, res);
+	});
+
+	app.get('/delete-item', function (req, res) {
+		console.log(req);
+	});
+
+	//app.get('/get-all', function (req, res) {
+	//	User.find({'item.user_id': req.user.user.id}, function(err, items) {
+	//		if(err) throw err;
+    //
+	//		for(item in items) {
+	//			console.log(items[item].item.id);
+	//		}
+	//	});
+    //
+	//	res.redirect('/profile');
+	//});
+
+	//app.get('/create-item', isLoggedIn, function(req, res) {
+	//	console.log(2);
+    //
+	//	res.render('items.ejs', {
+	//		user: req.user,
+	//		message: req.flash('messageSuccess', 'Item created'),
+	//		items: app.locals.items
+	//	});
+	//});
+
 	app.get('/delete-photo', function (req, res) {
-		User.findOneAndUpdate({'user.email': req.user.user.email}, {'user.image': ''}, function(err, user) {
+		User.findOneAndUpdate({'user.email': req.user.user.email}, {'user.image': ''}, function(err) {
 			if(err) throw err;
 
-			console.log('DELETE');
-			console.log(req.user);
-
-			req.session.save( function(err){
-				if(err) throw err;
-
-				res.redirect('/profile');
-			});
+			res.redirect('/profile');
 		})
 	});
 
@@ -53,26 +129,26 @@ module.exports = function (app, passport) {
 			User.findOneAndUpdate({'user.password': req.user.user.password}, {'user.password': req.user.generateHash(req.query.newPassword)}, function (err, user) {
 				if(err) throw err;
 			});
-			req.flash('messageSuccess', 'Password successfully changed');
+			Answer(true, 'Password successfully changed');
 		}else{
-			req.flash('messageFailure', 'Wrong current password');
+			Answer(false, 'Wrong current password');
 		}
 		res.redirect('/profile');
 	});
 
 	app.get('/change-email', function (req, res) {
-		User.findOneAndUpdate({'user.email': req.user.user.email}, {'user.email': req.query.email}, function (err, user) {
+		User.findOneAndUpdate({'user.email': req.user.user.email}, {'user.email': req.query.email}, function (err) {
 			if (err) throw err;
 		});
-		req.flash('messageSuccess', 'Email successfully changed');
+		Answer(true, 'Email successfully changed');
 		res.redirect('/profile');
 	});
 
 	app.get('/change-phone', function (req, res) {
-		User.findOneAndUpdate({'user.phone': req.user.user.phone}, {'user.phone': req.query.phone}, function (err, user) {
+		User.findOneAndUpdate({'user.phone': req.user.user.phone}, {'user.phone': req.query.phone}, function (err) {
 			if (err) throw err;
 		});
-		req.flash('messageSuccess', 'Phone successfully changed');
+		Answer(true, 'Phone successfully changed');
 		res.redirect('/profile');
 	});
 
@@ -80,39 +156,46 @@ module.exports = function (app, passport) {
 		User.find({'user.email': req.query.email}, function (err, user) {
 			if (err) throw err;
 
-			userName = user[0].user.name;
-			userPhone = user[0].user.phone;
+			try{
+				var userName = user[0].user.name;
+				var userPhone = user[0].user.phone;
 
-			var answer = 'email: ' + user[0].user.email + ', ';
-			if (userName != '' && userName != undefined) {
-				answer += 'name: ' + userName + ', ';
+				var answer = 'email: ' + user[0].user.email + ', ';
+				if (userName != '' && userName != undefined) {
+					answer += 'name: ' + userName + ', ';
+				}
+				if (userPhone != '' && userPhone != undefined) {
+					answer += 'phone: ' + userPhone;
+				}
+				Answer(true, answer);
 			}
-			if (userPhone != '' && userPhone != undefined) {
-				answer += 'phone: ' + userPhone;
+			catch(err){
+				Answer(false, 'There is no user with this email');
 			}
 
-			req.flash('messageSuccess', answer);
-
-			// there is a bug below: session don't store info fast
-			// enough so give it a try several times
-			req.session.save( function(err){
-				if(err) throw err;
-				req.session.working = 'arrived in time';
-
-				res.redirect('/profile');
-			});
+			res.redirect('/profile');
 		});
 	});
 
-	app.all('/profile', isLoggedIn, function (req, res) {
-		req.session.save(function (err) {
-			if (err) throw err;
+	function wasMessageShown(obj) {
+		if(obj.shown) {
+			obj.messageSuccess = null;
+			obj.messageFailure = null;
+			obj.shown  		   = false;
+		}
+		else if(obj.messageSuccess || obj.messageFailure) {
+			obj.shown = true;
+		}
+	}
 
-			res.render('profile.ejs', {
-				user: req.user,
-				messageSuccess: req.flash('messageSuccess'),
-				messageFailure: req.flash('messageFailure')
-			});
+	app.get('/profile', isLoggedIn, function (req, res) {
+		wasMessageShown(app.locals.answerObj);
+
+		res.render('profile.ejs', {
+			user: req.user,
+			messageSuccess: app.locals.answerObj.messageSuccess,
+			messageFailure: app.locals.answerObj.messageFailure,
+			items: app.locals.items
 		});
 	});
 
@@ -140,55 +223,6 @@ module.exports = function (app, passport) {
 		failureFlash : true // allow flash messages
 	}));
 
-	app.get('/create-item', function(req, res) {
-		res.render('items.ejs', {
-			user: req.user,
-			message: req.flash('messageSuccess', 'Item created')
-		});
-	});
-
-	app.get('/items', function (req, res) {
-		console.log(req.user.items);
-		res.render('items.ejs', {
-			item: req.user.item,
-			message: req.flash('messageSuccess')
-		});
-	});
-
-	app.post('/create-item', function(req, res) {
-		upload.single('photo');
-
-		var dirname = __dirname;
-		var path = dirname.substring(0, dirname.length - 3);
-		path += "/views/uploads/" + req.files.photo.originalFilename;
-		fs.readFile(req.files.photo.path, function (err, data) {
-			fs.writeFile(path, data, function (err) {
-				if (err) {
-					console.log(err);
-				}
-			});
-		});
-
-		var items = [];
-		var reqUserId = req.user.id;
-		User.find({}, function (err, users) {
-			if (err) throw err;
-
-			for (var i in users) {
-				if(users[i].item.user_id == reqUserId) {
-					items.push(users[i].item);
-				}
-			}
-			req.user.items = items;
-		});
-
-		passport.authenticate('item-create', {
-			successRedirect: '/items',
-			failureRedirect: '/',
-			failureFlash : true
-		})(req, res);
-	});
-
 	app.get('/logout', function(req, res) {
 		req.logout();
 		res.redirect('/');
@@ -200,5 +234,5 @@ function isLoggedIn(req, res, next) {
 	if (req.isAuthenticated())
 		return next();
 
-	res.redirect('/');
+	res.redirect('/login');
 }

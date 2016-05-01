@@ -17,8 +17,7 @@ var userSchema = mongoose.Schema({
         title      : String,
         price      : String,
         image      : String,
-        user_id    : String,
-        creator    : Object
+        user_id    : String
     }
 });
 

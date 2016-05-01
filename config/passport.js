@@ -1,12 +1,6 @@
-// config/passport.js
-
-// load all the things we need
 var LocalStrategy   = require('passport-local').Strategy;
-
-// load up the user model
 var User       		= require('../app/models/user');
 
-// expose this function to our app using module.exports
 module.exports = function(passport) {
 
 	// =========================================================================
@@ -34,7 +28,7 @@ module.exports = function(passport) {
 	// by default, if there was no name, it would just be called 'local'
 
     passport.use('local-signup', new LocalStrategy({
-        // by default, local strategy uses username and password, we will override with email
+        // by default, local strategy uses username and password, but we will override with email
         usernameField : 'email',
         passwordField : 'password',
         nameField     : 'name',
@@ -85,7 +79,6 @@ module.exports = function(passport) {
     // =============================================================
     // =========================================================================
     passport.use('item-create', new LocalStrategy({
-            // by default, local strategy uses username and password, we will override with email
             usernameField   : 'title',
             passwordField   : 'price',
             idFiled         : 'id',
@@ -96,11 +89,10 @@ module.exports = function(passport) {
             passReqToCallback : true // allows us to pass back the entire request to the callback
         },
         function(req, email, password, done) {
-            var newItem            = new User();
+            var newItem      = new User();
             var milliseconds = new Date();
-            var date = milliseconds.getFullYear() + '/' + milliseconds.getMonth() + '/' + milliseconds.getDate();
+            var date         = milliseconds.getFullYear() + '/' + (milliseconds.getMonth()+1) + '/' + milliseconds.getDate();
 
-            // set the user's local credentials
             newItem.item.title      = req.body.title;
             newItem.item.created_at = date;
             newItem.item.id         = newItem._id;
@@ -108,11 +100,6 @@ module.exports = function(passport) {
             newItem.item.image      = req.files.photo.originalFilename;
             newItem.item.user_id    = req.body.user_id;
 
-            User.findOne({ 'user.id' : req.body.user_id }, function(err, user) {
-                newItem.item.creator = user.user;
-            });
-
-            // save the user
             newItem.save(function(err) {
                 if (err)
                     throw err;
@@ -152,7 +139,5 @@ module.exports = function(passport) {
             // all is well, return successful user
             return done(null, user);
         });
-
     }));
-
 };

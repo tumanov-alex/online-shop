@@ -25,6 +25,7 @@
 </div>
 <script>
     var items = <%- items %>;
+    console.log(items);
 
     for(var i = items.length-1; i >= 0; --i) {
         $('.well').append("<div class='item-container' id='" + items[i].item.id + "'>" +
@@ -37,7 +38,7 @@
                             "</div>" +
                             "<div class='row'>" +
                                 "<div class='col-xs-6'>" +
-                                    "<div class='date'> Created at:" + items[i].item.created_at + "</div>" +
+                                    "<div class='date'> Created at: " + items[i].item.created_at + "</div>" +
                                 "</div>" +
                                 "<div class='col-xs-6'>" +
                                     "<div class='price'>" + items[i].item.price + " USD</div>" +
@@ -53,6 +54,8 @@
 
         $.ajax({
             url: '/delete-item',
+            method: "POST",
+            item_id: id,
             success: function() {
                 console.log('succa');
             }

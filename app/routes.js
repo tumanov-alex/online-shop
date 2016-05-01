@@ -50,22 +50,33 @@ module.exports = function (app, passport) {
 		res.redirect('/profile');
 	});
 
-	app.post('/my-items', function (req, res) {
-		passport.authenticate('my-items', {
-			successRedirect: '/items',
-			failureRedirect: '/profile',
-			failureFlash : true
-		})(req, res);
-	});
-
 	app.get('/items', isLoggedIn, function (req, res) {
-		User.find({'item.user_id': req.user.item.user_id}, function(err, items) {
+		var user_id;
+		if(req.user.item.user_id) {
+			user_id = req.user.item.user_id;
+		} else {
+			user_id = req.user.user.id;
+		}
+		//console.log(user_id);
+		User.find({'item.user_id': user_id}, function(err, items) {
 			if(err) throw err;
 
+			//console.log(items);
 			res.render('items.ejs', {
-				message: req.flash('messageSuccess'),
 				items: JSON.stringify(items)
 			});
+		});
+	});
+
+	app.post('/my-items', function (req, res) {
+		res.redirect('/items');
+	});
+
+	app.post('/delete-item', isLoggedIn, function (req, res) {
+		User.findOneAndRemove({'item.id': req.user.item.id}, function (err) {
+			if (err) throw err;
+
+			res.redirect('/items');
 		});
 	});
 
@@ -89,32 +100,6 @@ module.exports = function (app, passport) {
 			failureFlash : true
 		})(req, res);
 	});
-
-	app.get('/delete-item', function (req, res) {
-		console.log(req);
-	});
-
-	//app.get('/get-all', function (req, res) {
-	//	User.find({'item.user_id': req.user.user.id}, function(err, items) {
-	//		if(err) throw err;
-    //
-	//		for(item in items) {
-	//			console.log(items[item].item.id);
-	//		}
-	//	});
-    //
-	//	res.redirect('/profile');
-	//});
-
-	//app.get('/create-item', isLoggedIn, function(req, res) {
-	//	console.log(2);
-    //
-	//	res.render('items.ejs', {
-	//		user: req.user,
-	//		message: req.flash('messageSuccess', 'Item created'),
-	//		items: app.locals.items
-	//	});
-	//});
 
 	app.get('/delete-photo', function (req, res) {
 		User.findOneAndUpdate({'user.email': req.user.user.email}, {'user.image': ''}, function(err) {
@@ -188,14 +173,31 @@ module.exports = function (app, passport) {
 		}
 	}
 
+	function getUser(user_id) {
+		var items;
+		User.find({'user.id': user_id}, function(err, users) {
+			if(err) throw err;
+
+			items = users;
+			return items;
+		});
+	}
+
 	app.get('/profile', isLoggedIn, function (req, res) {
 		wasMessageShown(app.locals.answerObj);
 
+		console.log(req.user);
+		var user;
+		if(req.user.user.id){
+			user = req.user;
+		} else {
+			user = getUser(req.user.item.user_id);
+		}
+
 		res.render('profile.ejs', {
-			user: req.user,
+			user: user,
 			messageSuccess: app.locals.answerObj.messageSuccess,
-			messageFailure: app.locals.answerObj.messageFailure,
-			items: app.locals.items
+			messageFailure: app.locals.answerObj.messageFailure
 		});
 	});
 

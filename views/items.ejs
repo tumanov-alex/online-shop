@@ -25,7 +25,6 @@
 </div>
 <script>
     var items = <%- items %>;
-    console.log(items);
 
     for(var i = items.length-1; i >= 0; --i) {
         $('.well').append("<div class='item-container' id='" + items[i].item.id + "'>" +
@@ -52,13 +51,11 @@
 
         $('.item-container#' + id).addClass('hidden');
 
+        console.log(id);
         $.ajax({
             url: '/delete-item',
             method: "POST",
-            item_id: id,
-            success: function() {
-                console.log('succa');
-            }
+            data: {item_id: id}
         })
     })
 </script>

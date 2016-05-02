@@ -29,12 +29,12 @@ module.exports = function(passport) {
 
     passport.use('local-signup', new LocalStrategy({
         // by default, local strategy uses username and password, but we will override with email
-        usernameField : 'email',
-        passwordField : 'password',
-        nameField     : 'name',
-        phoneField    : 'phone',
-        imageField    : 'image',
-        idField       : 'id',
+        usernameField     : 'email',
+        passwordField     : 'password',
+        nameField         : 'name',
+        phoneField        : 'phone',
+        imageField        : 'image',
+        idField           : 'id',
         passReqToCallback : true // allows us to pass back the entire request to the callback
     },
     function(req, email, password, done) {
@@ -51,18 +51,16 @@ module.exports = function(passport) {
                 return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
             } else {
 
-				// if there is no user with that email
-                // create the user
-                var newUser            = new User();
+                var newUser = new User();
 
                 // set the user's local credentials
-                newUser.user.email    = email;
-                newUser.user.password = newUser.generateHash(password);
-                newUser.user.name = req.body.name;
-                newUser.user.phone = req.body.phone;
-                newUser.user.id = newUser._id;
-                // function
-                // in our user model
+                newUser.user = {
+                    email    : email,
+                    password : newUser.generateHash(password),
+                    phone    : req.body.phone,
+                    name     : req.body.name,
+                    id       : newUser._id
+                };
 
 				// save the user
                 newUser.save(function(err) {
@@ -75,39 +73,6 @@ module.exports = function(passport) {
     }));
 
     // =========================================================================
-    // LOCAL ITEM
-    // =============================================================
-    // =========================================================================
-    passport.use('item-create', new LocalStrategy({
-            usernameField   : 'title',
-            passwordField   : 'price',
-            idFiled         : 'id',
-            created_atField : 'created_at',
-            imageField      : 'image',
-            user_idField    : 'user_id',
-            creatorField    : 'creator',
-            passReqToCallback : true // allows us to pass back the entire request to the callback
-        },
-        function(req, email, password, done) {
-            var newItem      = new User();
-            var milliseconds = new Date();
-            var date         = (milliseconds.getMonth()+1) + '/' + milliseconds.getDate() + '/' + milliseconds.getFullYear();
-
-            newItem.item.title      = req.body.title;
-            newItem.item.created_at = date;
-            newItem.item.id         = newItem._id;
-            newItem.item.price      = req.body.price;
-            newItem.item.image      = req.files.photo.originalFilename;
-            newItem.item.user_id    = req.body.user_id;
-
-            newItem.save(function(err) {
-                if (err)
-                    throw err;
-                return done(null, newItem);
-            });
-        }));
-
-    // =========================================================================
     // LOCAL LOGIN =============================================================
     // =========================================================================
     // we are using named strategies since we have one for login and one for signup
@@ -115,8 +80,8 @@ module.exports = function(passport) {
 
     passport.use('local-login', new LocalStrategy({
         // by default, local strategy uses username and password, we will override with email
-        usernameField : 'email',
-        passwordField : 'password',
+        usernameField     : 'email',
+        passwordField     : 'password',
         passReqToCallback : true // allows us to pass back the entire request to the callback
     },
     function(req, email, password, done) { // callback with email and password from our form

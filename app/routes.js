@@ -75,7 +75,7 @@ module.exports = function (app, passport) {
 	});
 
 	app.post('/delete-item', function (req, res) {
-		User.findOneAndRemove({'item.id': req.user.item.id}, function (err, item) {
+		User.findOneAndRemove({'item.id': req.body.item_id}, function (err) {
 			if (err) throw err;
 
 			res.redirect('/items');
@@ -96,11 +96,23 @@ module.exports = function (app, passport) {
 			});
 		});
 
-		passport.authenticate('item-create', {
-			successRedirect: '/items',
-			failureRedirect: '/profile',
-			failureFlash : true
-		})(req, res);
+		var milliseconds = new Date();
+		var date         = (milliseconds.getMonth()+1) + '/' + milliseconds.getDate() + '/' + milliseconds.getFullYear();
+		var newItem = new User();
+		newItem.item = {
+				id         : newItem._id,
+				created_at : date,
+				title      : req.body.title,
+				price      : req.body.price,
+				image      : req.files.photo.originalFilename,
+				user_id    : req.body.user_id
+		};
+
+		newItem.save(function (err) {
+			if (err) throw err;
+		});
+
+		res.redirect('/items');
 	});
 
 	app.get('/delete-photo', function (req, res) {
@@ -182,7 +194,7 @@ module.exports = function (app, passport) {
 		if(!app.locals.user) {
 			app.locals.user = req.user;
 		}
-		console.log(req);
+
 		res.render('profile.ejs', {
 			messageSuccess: app.locals.answerObj.messageSuccess,
 			messageFailure: app.locals.answerObj.messageFailure
@@ -221,8 +233,6 @@ module.exports = function (app, passport) {
 };
 
 function isLoggedIn(req, res, next) {
-	console.log('\nlogger');
-	console.log(req.user);
 	if (req.isAuthenticated())
 		return next();
 

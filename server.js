@@ -25,10 +25,10 @@ app.configure(function() {
 	app.use(express.logger('dev')); // log every request to the console
 	app.use(express.cookieParser()); // read cookies (needed for auth)
 	//app.use(connect.cookieSession({ secret: 'tobo!', cookie: { maxAge: 60 * 60 * 1000 }}));
-	app.use(express.bodyParser()); // get information from html forms
 	app.use(bodyParser.json());
-	app.use(express.static('views'));
 	app.use(bodyParser.urlencoded({extended: true}));
+	app.use(express.bodyParser()); // get information from html forms
+	app.use(express.static('views'));
 
 	app.set('view engine', 'ejs'); // set up ejs for templating
 

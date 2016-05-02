@@ -15,7 +15,7 @@ var configDB = require('./config/database.js');
 // configuration ===============================================================
 mongoose.connect(configDB.url);
 var session = require('express-session');
-var sessionStore = new session.MemoryStore;
+var SessionStore = new session.MemoryStore;
 
 require('./config/passport')(passport); // pass passport for configuration
 
@@ -34,7 +34,8 @@ app.configure(function() {
 
 	// required for passport
 	app.use(express.session({
-		secret: 'yohooo'
+		secret: 'yohooo',
+		store: SessionStore
 	}));
 	app.use(passport.initialize());
 	app.use(passport.session()); // persistent login sessions

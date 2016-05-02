@@ -5,6 +5,7 @@ var multer  = require('multer');
 var upload = multer();
 
 module.exports = function (app, passport) {
+
 	app.locals.answerObj = {
 		messageSuccess: null,
 		messageFailure: null,
@@ -40,8 +41,10 @@ module.exports = function (app, passport) {
 				fs.writeFile(path, data, function () {
 					Answer(true, "Uploaded");
 
-					User.findOneAndUpdate({'user.email': req.user.user.email}, {'user.image': req.files.photo.originalFilename}, function (err) {
+					User.findOneAndUpdate({'user.id': req.user.user.id}, {'user.image': req.files.photo.originalFilename}, function (err, user) {
 						if (err) throw err;
+
+						app.locals.user = user;
 					});
 				});
 			});
@@ -57,11 +60,10 @@ module.exports = function (app, passport) {
 		} else {
 			user_id = req.user.user.id;
 		}
-		//console.log(user_id);
+
 		User.find({'item.user_id': user_id}, function(err, items) {
 			if(err) throw err;
 
-			//console.log(items);
 			res.render('items.ejs', {
 				items: JSON.stringify(items)
 			});
@@ -72,8 +74,8 @@ module.exports = function (app, passport) {
 		res.redirect('/items');
 	});
 
-	app.post('/delete-item', isLoggedIn, function (req, res) {
-		User.findOneAndRemove({'item.id': req.user.item.id}, function (err) {
+	app.post('/delete-item', function (req, res) {
+		User.findOneAndRemove({'item.id': req.user.item.id}, function (err, item) {
 			if (err) throw err;
 
 			res.redirect('/items');
@@ -102,16 +104,17 @@ module.exports = function (app, passport) {
 	});
 
 	app.get('/delete-photo', function (req, res) {
-		User.findOneAndUpdate({'user.email': req.user.user.email}, {'user.image': ''}, function(err) {
+		User.findOneAndUpdate({'user.email': req.user.user.email}, {'user.image': ''}, function(err, user) {
 			if(err) throw err;
 
+			app.locals.user = user;
 			res.redirect('/profile');
 		})
 	});
 
 	app.get('/change-pass', function (req, res) {
 		if (req.user.validPassword(req.query.oldPassword)) {
-			User.findOneAndUpdate({'user.password': req.user.user.password}, {'user.password': req.user.generateHash(req.query.newPassword)}, function (err, user) {
+			User.findOneAndUpdate({'user.password': req.user.user.password}, {'user.password': req.user.generateHash(req.query.newPassword)}, function (err) {
 				if(err) throw err;
 			});
 			Answer(true, 'Password successfully changed');
@@ -173,29 +176,14 @@ module.exports = function (app, passport) {
 		}
 	}
 
-	function getUser(user_id) {
-		var items;
-		User.find({'user.id': user_id}, function(err, users) {
-			if(err) throw err;
-
-			items = users;
-			return items;
-		});
-	}
-
 	app.get('/profile', isLoggedIn, function (req, res) {
 		wasMessageShown(app.locals.answerObj);
 
-		console.log(req.user);
-		var user;
-		if(req.user.user.id){
-			user = req.user;
-		} else {
-			user = getUser(req.user.item.user_id);
+		if(!app.locals.user) {
+			app.locals.user = req.user;
 		}
-
+		console.log(req);
 		res.render('profile.ejs', {
-			user: user,
 			messageSuccess: app.locals.answerObj.messageSuccess,
 			messageFailure: app.locals.answerObj.messageFailure
 		});
@@ -226,13 +214,15 @@ module.exports = function (app, passport) {
 	}));
 
 	app.get('/logout', function(req, res) {
+		delete app.locals.user;
 		req.logout();
 		res.redirect('/');
 	});
 };
 
 function isLoggedIn(req, res, next) {
-
+	console.log('\nlogger');
+	console.log(req.user);
 	if (req.isAuthenticated())
 		return next();
 

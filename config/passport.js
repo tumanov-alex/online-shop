@@ -91,7 +91,7 @@ module.exports = function(passport) {
         function(req, email, password, done) {
             var newItem      = new User();
             var milliseconds = new Date();
-            var date         = milliseconds.getFullYear() + '/' + (milliseconds.getMonth()+1) + '/' + milliseconds.getDate();
+            var date         = (milliseconds.getMonth()+1) + '/' + milliseconds.getDate() + '/' + milliseconds.getFullYear();
 
             newItem.item.title      = req.body.title;
             newItem.item.created_at = date;
@@ -120,7 +120,6 @@ module.exports = function(passport) {
         passReqToCallback : true // allows us to pass back the entire request to the callback
     },
     function(req, email, password, done) { // callback with email and password from our form
-
         // find a user whose email is the same as the forms email
         // we are checking to see if the user trying to login already exists
         User.findOne({ 'user.email' :  email }, function(err, user) {

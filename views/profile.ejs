@@ -51,7 +51,7 @@
 				<% } %>
 				<% if (messageFailure) { %>
 				<div class="alert alert-danger"><%= messageFailure %></div>
-				<% } %>
+				<% }%>
 
 				<h3><span class="fa fa-user"></span> Hi, <%= user.user
 							.name %>!
@@ -131,7 +131,7 @@
 				</form>
 				<br>
 
-				<form action="/file_upload" method="POST"
+				<form action="/upload-photo" method="POST"
 					  enctype="multipart/form-data">
 					<strong>Change profile picture:</strong>
 					<br>

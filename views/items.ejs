@@ -16,6 +16,13 @@
         <a href="/logout" class="btn btn-default btn-sm">Logout</a>
     </div>
 
+    <% if (messageSuccess) { %>
+    <div class="alert alert-info"><%= messageSuccess %></div>
+    <% } %>
+    <% if (messageFailure) { %>
+    <div class="alert alert-danger"><%= messageFailure %></div>
+    <% } %>
+
     <div class="row">
         <div class="col-sm-3"></div>
         <div class="col-sm-6">

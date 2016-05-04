@@ -25,7 +25,6 @@ app.use(session({
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser()); // get information from html forms
 app.use(express.static('views'));
 
 app.set('view engine', 'ejs'); // set up ejs for templating

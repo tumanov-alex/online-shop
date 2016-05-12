@@ -27,6 +27,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('views'));
 
+app.use('/app/public', express.static(__dirname + '/app/public'));
 app.set('view engine', 'ejs'); // set up ejs for templating
 
 // required for passport

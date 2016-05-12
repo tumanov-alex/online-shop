@@ -35,6 +35,7 @@ module.exports = function (app, passport) {
 		res.render('signup.ejs', { message: req.flash('signupMessage') });
 	});
 
+	// stable handmade analog of flash messages
 	app.locals.answerObj = {
 		messageSuccess: null,
 		messageFailure: null,
@@ -52,11 +53,12 @@ module.exports = function (app, passport) {
 		app.locals.answerObj.shown = false;
 	}
 
+	// did user see a message?
 	function wasMessageShown(obj) {
 		if(obj.shown) {
 			obj.messageSuccess = null;
 			obj.messageFailure = null;
-			obj.shown  		   = false;
+			obj.shown          = false;
 		}
 		else if(obj.messageSuccess || obj.messageFailure) {
 			obj.shown = true;
@@ -110,6 +112,7 @@ module.exports = function (app, passport) {
 			if (err) throw err;
 
 			try{
+				// generate string with an answer
 				var userName = user[0].user.name;
 				var userPhone = user[0].user.phone;
 
@@ -219,6 +222,7 @@ module.exports = function (app, passport) {
 	app.get('/items', isLoggedIn, function (req, res) {
 		wasMessageShown(app.locals.answerObj);
 
+		// find all items which created by user with a current user.id
 		User.find({'item.user_id': req.user.user.id}, function(err, items) {
 			if(err) throw err;
 

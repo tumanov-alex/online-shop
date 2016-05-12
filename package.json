@@ -13,7 +13,9 @@
     "connect-flash" : "latest",
     "bcrypt-nodejs" : "latest",
     "body-parser" : "latest",
-    "multer" : "latest"
+    "multer" : "latest",
+    "cookie-parser" : "latest",
+    "express-session" : "latest"
   },
   "keywords": [
     "gulp"

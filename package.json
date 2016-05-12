@@ -3,6 +3,7 @@
   "main": "server.js",
   "dependencies" : {
     "express" : "latest",
+    "express-session": "latest",
     "ejs" : "latest",
     "mongoose" : "latest",
     "passport" : "latest",

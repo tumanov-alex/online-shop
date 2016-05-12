@@ -43,4 +43,4 @@ require('./app/routes.js')(app, passport); // load our routes and pass in our ap
 
 // launch ======================================================================
 app.listen(port);
-console.log('Big Brother is listening you on ' + port);
+console.log('\nBig Brother is listening you on ' + port);

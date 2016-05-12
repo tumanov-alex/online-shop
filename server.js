@@ -30,8 +30,6 @@ app.use(express.static('views'));
 app.use('/app/public', express.static(__dirname + '/app/public'));
 app.set('view engine', 'ejs'); // set up ejs for templating
 
-// required for passport
-
 app.use(passport.initialize());
 app.use(flash()); // use connect-flash for flash messages stored in session
 //app.use(app.router());

@@ -5,7 +5,6 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var flash    = require('connect-flash');
 var bodyParser = require('body-parser');
-var multer  = require('multer');
 var configDB = require('./config/database.js');
 
 // configuration ===============================================================
@@ -16,7 +15,7 @@ var SessionStore = new session.MemoryStore;
 require('./config/passport')(passport); // pass passport for configuration
 
 app.configure(function() {
-    
+
 	// set up our express application
 	app.use(express.logger('dev')); // log every request to the console
 	app.use(express.cookieParser()); // read cookies (needed for auth)

@@ -6,6 +6,36 @@ var upload = multer();
 
 module.exports = function (app, passport) {
 
+    // stable handmade analog of flash messages
+    app.locals.answerObj = {
+        messageSuccess: null,
+        messageFailure: null,
+        shown: false
+    };
+
+    function Answer(failureOrSuccessFlag, str) {
+        if(failureOrSuccessFlag) {
+            app.locals.answerObj.messageSuccess = str;
+            app.locals.answerObj.messageFailure = null;
+        } else {
+            app.locals.answerObj.messageFailure = str;
+            app.locals.answerObj.messageSuccess = null;
+        }
+        app.locals.answerObj.shown = false;
+    }
+
+    // did user see a message?
+    function wasMessageShown(obj) {
+        if(obj.shown) {
+            obj.messageSuccess = null;
+            obj.messageFailure = null;
+            obj.shown          = false;
+        }
+        else if(obj.messageSuccess || obj.messageFailure) {
+            obj.shown = true;
+        }
+    }
+
 	app.get('/', function(req, res) {
 		res.render('index.ejs');
 	});
@@ -34,36 +64,6 @@ module.exports = function (app, passport) {
 		req.logout();
 		res.redirect('/');
 	});
-
-	// stable handmade analog of flash messages
-	app.locals.answerObj = {
-		messageSuccess: null,
-		messageFailure: null,
-		shown: false
-	};
-
-	function Answer(failureOrSuccessFlag, str) {
-		if(failureOrSuccessFlag) {
-			app.locals.answerObj.messageSuccess = str;
-			app.locals.answerObj.messageFailure = null;
-		} else {
-			app.locals.answerObj.messageFailure = str;
-			app.locals.answerObj.messageSuccess = null;
-		}
-		app.locals.answerObj.shown = false;
-	}
-
-	// did user see a message?
-	function wasMessageShown(obj) {
-		if(obj.shown) {
-			obj.messageSuccess = null;
-			obj.messageFailure = null;
-			obj.shown          = false;
-		}
-		else if(obj.messageSuccess || obj.messageFailure) {
-			obj.shown = true;
-		}
-	}
 
 	app.get('/profile', isLoggedIn, function (req, res) {
 		wasMessageShown(app.locals.answerObj);
@@ -145,22 +145,20 @@ module.exports = function (app, passport) {
 			var path = __dirname.split('\\');
 			path.splice(path.length-1, 1);
 			path = path.join('\\');
-			path += "views\\uploads\\" + req.files.photo.originalFilename;
+			path += "\\views\\uploads\\" + req.files.photo.originalFilename;
 
 			fs.readFile(req.files.photo.path, function (err, data) {
 				fs.writeFile(path, data, function (err) {
 					if(err) console.log(err);
 
-					Answer(true, "Uploaded");
-
 					User.findOneAndUpdate({'user.id': req.user.user.id}, {'user.image': req.files.photo.originalFilename}, function (err) {
 						if (err) throw err;
-
-						req.user.user.image = req.files.photo.originalFilename;
 					});
 				});
 			});
-		}
+            req.user.user.image = req.files.photo.originalFilename;
+            Answer(true, "Uploaded");
+        }
 		res.redirect('/profile');
 	});
 

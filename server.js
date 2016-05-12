@@ -31,6 +31,7 @@ app.use('/app/public', express.static(__dirname + '/app/public'));
 app.set('view engine', 'ejs'); // set up ejs for templating
 
 app.use(passport.initialize());
+app.use(passport.session());
 app.use(flash()); // use connect-flash for flash messages stored in session
 
 // routes ======================================================================

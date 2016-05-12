@@ -80,6 +80,7 @@ module.exports = function (app, passport) {
 			if (err) throw err;
 		});
 		Answer(true, 'Email successfully changed');
+        req.user.user.email = req.query.email;
 
 		res.redirect('/profile');
 	});
@@ -134,6 +135,7 @@ module.exports = function (app, passport) {
 	});
 
 	app.post('/upload-photo', function (req, res) {
+        console.log(req);
 		var uploadingFileType = req.files.photo.type;
 		uploadingFileType = uploadingFileType.split('/');
 

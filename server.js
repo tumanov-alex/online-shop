@@ -24,7 +24,7 @@ app.configure(function() {
 	app.use(express.bodyParser()); // get information from html forms
 	app.use(express.static('views'));
 	app.use('/app/public', express.static(__dirname + '/app/public'));
-	
+
 	app.set('view engine', 'ejs'); // set up ejs for templating
 
 	// required for passport

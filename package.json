@@ -15,5 +15,13 @@
     "bcrypt-nodejs" : "latest",
     "body-parser" : "latest",
     "multer" : "latest"
+  },
+  "keywords": [
+    "gulp"
+  ],
+  "devDependencies": {
+    "gulp": "*",
+    "gulp-clean-css": "*",
+    "gulp-uglify": "*"
   }
 }
